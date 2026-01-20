@@ -89,6 +89,16 @@ case $OPT_VERSION in
     rm download.zip
     ;;
   *)
-    wget -O - https://github.com/llvm/circt/releases/download/$OPT_VERSION/$OPT_FILENAME | tar -zx -C $OPT_INSTALL_DIR/ --strip-components 1
+    # Use local tarball from Chipyard root directory
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    CHIPYARD_ROOT="$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")"
+    LOCAL_TARBALL="$CHIPYARD_ROOT/$OPT_FILENAME"
+
+    if [[ ! -f "$LOCAL_TARBALL" ]]; then
+      echo "ERROR: Local CIRCT tarball not found at: $LOCAL_TARBALL"
+      exit 1
+    fi
+    echo "Using local CIRCT tarball: $LOCAL_TARBALL"
+    tar -zx -f "$LOCAL_TARBALL" -C "$OPT_INSTALL_DIR/" --strip-components 1
     ;;
 esac
